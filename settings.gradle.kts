@@ -23,3 +23,4 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "PoimApp"
 include(":app")
 include(":poi")
+include(":core")

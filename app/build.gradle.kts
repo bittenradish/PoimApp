@@ -52,6 +52,7 @@ android {
 
 dependencies {
     implementation(projects.poi)
+    implementation(projects.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
