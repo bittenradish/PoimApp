@@ -1,4 +1,4 @@
-package com.example.poi.data.respository.model
+package com.example.poi.data.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
