@@ -1,9 +1,28 @@
 package com.example.poi.di
 
+import com.example.poi.BuildConfig.BASE_URL
 import com.example.poi.data.PoiRepositoryImpl
+import com.example.poi.data.api.PoiApi
 import com.example.poi.domain.PoiRepository
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 val poiModule = module {
-    single<PoiRepository> { PoiRepositoryImpl() }
+    single<PoiRepository> { PoiRepositoryImpl(poiApi = get()) }
+    single {
+        Retrofit
+            .Builder()
+            .baseUrl(BASE_URL)
+            .client(get())
+            .addConverterFactory(
+                Json {
+                    ignoreUnknownKeys = true
+                }.asConverterFactory("application/json".toMediaType())
+            )
+            .build()
+            .create(PoiApi::class.java)
+    }
 }

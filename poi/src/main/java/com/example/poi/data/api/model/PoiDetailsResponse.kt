@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal  data class PoiResponse(
+internal class PoiDetailsResponse(
     @SerialName("id") val id: String,
     @SerialName("lat") val latitude: Double,
     @SerialName("lng") val longitude: Double,
@@ -13,6 +13,20 @@ internal  data class PoiResponse(
     @SerialName("vehicle_type") val vehicleType: String?,
     @SerialName("latest_parking_id") val parkingId: ULong?,
     @SerialName("app_relation") val relation: String,
-//    TODO: Add later if needed, for now it is irrelevant
-//    @SerialName("distance") val distance
+    @SerialName("image") val image: DetailImageResponse,
+    @SerialName("provider") val provider: PoiProviderResponse,
+)
+
+@Serializable
+internal data class DetailImageResponse(
+    @SerialName("thumb_url") val thumbUrl: String?,
+    @SerialName("medium_url") val mediumUrl: String?,
+    @SerialName("url") val url: String?,
+)
+
+
+@Serializable
+internal data class PoiProviderResponse(
+    @SerialName("image") val image: DetailImageResponse,
+    @SerialName("name") val name: String,
 )

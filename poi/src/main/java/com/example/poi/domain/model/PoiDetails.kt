@@ -1,6 +1,6 @@
 package com.example.poi.domain.model
 
-data class Poi(
+data class PoiDetails(
     val id: String,
     val latitude: Double,
     val longitude: Double,
@@ -9,24 +9,17 @@ data class Poi(
     val vehicleType: VehicleType,
     val parkingId: ULong?,
     val relation: AppRelation,
+    val image: DetailImage,
+    val provider: PoiProvider,
 )
 
-enum class PositionType {
-    PARKING,
-    STANDALONE,
-    UNKNOWN,
-}
+data class PoiProvider(
+    val image: DetailImage,
+    val name: String,
+)
 
-enum class VehicleType {
-    CAR,
-    BIKE,
-    SCOOTER,
-    OTHER,
-    UNKNOWN,
-}
-
-enum class AppRelation {
-    FOREIGN,
-    NATIVE,
-    UNKNOWN,
-}
+data class DetailImage(
+    val thumbUrl: String?,
+    val mediumUrl: String?,
+    val url: String?,
+)

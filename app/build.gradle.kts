@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,11 +22,20 @@ android {
 
     buildTypes {
         release {
+            buildFeatures.buildConfig = true
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val baseUrl: String = gradleLocalProperties(rootDir, providers).getProperty("PROD_URL")
+            buildConfigField("String", "BASE_URL", baseUrl)
+        }
+
+        debug {
+            buildFeatures.buildConfig = true
+            val baseUrl: String = gradleLocalProperties(rootDir, providers).getProperty("DEBUG_URL")
+            buildConfigField("String", "BASE_URL", baseUrl)
         }
     }
     compileOptions {
@@ -52,6 +63,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.koin)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

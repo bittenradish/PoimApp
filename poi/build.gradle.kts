@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -9,7 +11,7 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-            minSdk = libs.versions.minSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -17,11 +19,20 @@ android {
 
     buildTypes {
         release {
+            buildFeatures.buildConfig = true
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val baseUrl: String = gradleLocalProperties(rootDir, providers).getProperty("PROD_URL")
+            buildConfigField("String", "BASE_URL", baseUrl)
+        }
+
+        debug {
+            buildFeatures.buildConfig = true
+            val baseUrl: String = gradleLocalProperties(rootDir, providers).getProperty("DEBUG_URL")
+            buildConfigField("String", "BASE_URL", baseUrl)
         }
     }
     compileOptions {
@@ -41,7 +52,9 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization.converter)
     implementation(libs.koin)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
