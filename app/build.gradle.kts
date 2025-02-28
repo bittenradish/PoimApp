@@ -65,6 +65,7 @@ dependencies {
 
     implementation(libs.koin)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

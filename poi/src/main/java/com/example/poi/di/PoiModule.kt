@@ -3,6 +3,7 @@ package com.example.poi.di
 import com.example.poi.BuildConfig.BASE_URL
 import com.example.poi.data.PoiRepositoryImpl
 import com.example.poi.data.api.PoiApi
+import com.example.poi.data.api.PoiApiAdapter
 import com.example.poi.domain.PoiRepository
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -11,7 +12,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 val poiModule = module {
-    single<PoiRepository> { PoiRepositoryImpl(poiApi = get()) }
+    single<PoiRepository> { PoiRepositoryImpl(poiApiAdapter = get()) }
+
+    single { PoiApiAdapter(poiApi = get()) }
+
     single {
         Retrofit
             .Builder()
