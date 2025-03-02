@@ -6,6 +6,7 @@ import com.example.poi.data.api.PoiApi
 import com.example.poi.data.api.PoiApiAdapter
 import com.example.poi.domain.PoiRepository
 import com.example.poi.presentation.PoiMapViewModel
+import com.example.poi.presentation.model.MapStateReducer
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -33,6 +34,10 @@ val poiModule = module {
     }
 
     viewModel {
-        PoiMapViewModel(poiRepository = get())
+        PoiMapViewModel(poiRepository = get(), reducer = get())
+    }
+
+    factory {
+        MapStateReducer()
     }
 }

@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.poi.domain.PoiRepository
 import com.example.poi.domain.model.BoundingBox
-import com.google.android.gms.maps.model.LatLng
+import com.example.poi.domain.model.PoisChunk
+import com.example.poi.presentation.model.MapState
+import com.example.poi.presentation.model.MapStateReducer
+import com.example.poi.presentation.model.PoiMarker
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,24 +19,34 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class PoiMapViewModel(private val poiRepository: PoiRepository) : ViewModel() {
+class PoiMapViewModel(
+    private val poiRepository: PoiRepository,
+    private val reducer: MapStateReducer,
+) : ViewModel() {
 
     //TODO: make it private and prepare to delegate
-    private val mutableMapStateFlow = MutableStateFlow<Map<String, LatLng>>(mapOf())
+    private val mutableMapStateFlow = MutableStateFlow(MapState())
 
     private var job: Job? = null
 
-    private var mapState: Map<String, LatLng>
+    private var mapState: MapState
         get() = mutableMapStateFlow.value
         set(value) {
             mutableMapStateFlow.value = value
         }
 
-    val mapStateFlow: StateFlow<List<LatLng>> =
-        mutableMapStateFlow.map { it.values.toList() }.distinctUntilChanged().stateIn(
+    val mapStateFlow: StateFlow<List<PoiMarker>> =
+        mutableMapStateFlow.map { it.poiList.values.toList() }.distinctUntilChanged().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = listOf()
+        )
+
+    val isLoadingFlow: StateFlow<Boolean> =
+        mutableMapStateFlow.map { it.isLoading }.distinctUntilChanged().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
         )
 
 
@@ -43,6 +56,7 @@ class PoiMapViewModel(private val poiRepository: PoiRepository) : ViewModel() {
 
     private fun loadMapPoints(box: LatLngBounds) {
         Log.d("map", "loadingViewmodel")
+        mapState = reducer.reduceLoading(mapState, isLoading = true, box)
         job?.cancel()
 
         job = viewModelScope.launch {
@@ -55,20 +69,22 @@ class PoiMapViewModel(private val poiRepository: PoiRepository) : ViewModel() {
                         southWestLongitude = southwest.longitude
                     )
                 }
-            ).collect { list ->
-                list.fold(
-                    onSuccess = { pois ->
-                        mapState = mapState.toMutableMap().apply {
-                            this.putAll(pois.associate {
-                                it.id to LatLng(
-                                    it.latitude,
-                                    it.longitude
-                                )
-                            })
+            ).collect { poiList ->
+                poiList.fold(
+                    onSuccess = { poisChunk ->
+                        when (poisChunk) {
+                            PoisChunk.Finished -> mapState = reducer.reduceLoading(
+                                mapState,
+                                isLoading = false,
+                                box = box
+                            )
+
+                            is PoisChunk.PoiList -> mapState =
+                                reducer.reducePoiList(oldState = mapState, poiList = poisChunk.pois)
                         }
                     },
                     onFailure = {
-                        Log.d("ViewModel", it.stackTraceToString())
+                        reducer.reduceLoading(mapState, isLoading = false, box = box)
                     }
                 )
             }

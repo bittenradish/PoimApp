@@ -27,8 +27,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             PoimAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val poiState by poiViewModel.mapStateFlow.collectAsStateWithLifecycle()
-                    PoiMap(poiState) {
+                    val poiList by poiViewModel.mapStateFlow.collectAsStateWithLifecycle()
+                    val isLoading by poiViewModel.isLoadingFlow.collectAsStateWithLifecycle()
+                    PoiMap(
+                        Modifier.fillMaxSize(),
+                        poiList,
+                        isLoading
+                    ) {
                         poiViewModel.updateBoundingBox(it)
                     }
                 }

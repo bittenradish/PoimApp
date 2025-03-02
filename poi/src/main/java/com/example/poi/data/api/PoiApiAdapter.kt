@@ -24,23 +24,15 @@ internal class PoiApiAdapter(private val poiApi: PoiApi) {
             pageSize?.let { this[pageSizeFilter] = it.toString() }
         }
 
-        while (true) {
+        do {
             filterMap[pageNumberFiler] = pageNumber.toString()
 
             val result = runCatching { poiApi.getPoiList(filterMap) }
 
-            if (result.getOrNull()?.data?.isEmpty() == true) {
-                break
-            }
-
             emit(result)
             delay(100)
             pageNumber += 1
-
-            if (result.isFailure) {
-                break
-            }
-        }
+        } while (result.getOrNull()?.data?.isNotEmpty() == true)
     }
 
     suspend fun getPoiDetails(id: String) = runCatching {
