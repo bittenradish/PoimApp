@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.koin)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation(libs.google.maps.compose)
+    implementation(libs.google.maps.compose.utils)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

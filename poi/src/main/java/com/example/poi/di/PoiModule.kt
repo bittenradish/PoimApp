@@ -5,8 +5,10 @@ import com.example.poi.data.PoiRepositoryImpl
 import com.example.poi.data.api.PoiApi
 import com.example.poi.data.api.PoiApiAdapter
 import com.example.poi.domain.PoiRepository
+import com.example.poi.presentation.PoiMapViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -28,5 +30,9 @@ val poiModule = module {
             )
             .build()
             .create(PoiApi::class.java)
+    }
+
+    viewModel {
+        PoiMapViewModel(poiRepository = get())
     }
 }

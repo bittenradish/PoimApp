@@ -14,7 +14,6 @@ internal class PoiApiAdapter(private val poiApi: PoiApi) {
     private val extraFields = "image,provider"
 
     fun getPoiList(
-        //TODO: replace with correct object
         box: String?,
         pageSize: Int?,
     ): Flow<Result<PoiDataResponse<PoiResponse>>> = flow {
@@ -30,14 +29,17 @@ internal class PoiApiAdapter(private val poiApi: PoiApi) {
 
             val result = runCatching { poiApi.getPoiList(filterMap) }
 
-
-            if (result.getOrNull()?.data?.isEmpty() == true || result.isFailure) {
+            if (result.getOrNull()?.data?.isEmpty() == true) {
                 break
             }
 
             emit(result)
-            delay(50)
+            delay(100)
             pageNumber += 1
+
+            if (result.isFailure) {
+                break
+            }
         }
     }
 

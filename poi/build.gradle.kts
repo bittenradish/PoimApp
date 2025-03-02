@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.koin)
     implementation(libs.okhttp)
     implementation(libs.google.maps.compose)
+    implementation(libs.google.maps.compose.utils)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.foundation.layout.android)

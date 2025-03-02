@@ -1,8 +1,10 @@
 package com.example.poi.data
 
 import com.example.poi.data.api.PoiApiAdapter
+import com.example.poi.data.api.model.toData
 import com.example.poi.data.api.model.toDomain
 import com.example.poi.domain.PoiRepository
+import com.example.poi.domain.model.BoundingBox
 import com.example.poi.domain.model.Poi
 import com.example.poi.domain.model.PoiDetails
 import kotlinx.coroutines.flow.Flow
@@ -16,8 +18,8 @@ internal class PoiRepositoryImpl(
     //    "error": "Failed casting id for type integer. Please check given value.",
 //    "error_type": "typecast_failed"
 //}
-    override suspend fun getPoiList(): Flow<Result<List<Poi>>> =
-        poiApiAdapter.getPoiList(box = null, pageSize = 10).map { responseResult ->
+    override suspend fun getPoiList(boundingBox: BoundingBox): Flow<Result<List<Poi>>> =
+        poiApiAdapter.getPoiList(box = boundingBox.toData(), pageSize = 10).map { responseResult ->
             responseResult.map { it.data.map { item -> item.toDomain() } }
         }
 
