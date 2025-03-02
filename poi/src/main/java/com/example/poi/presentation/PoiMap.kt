@@ -43,7 +43,7 @@ fun PoiMap(poiList: List<LatLng>, cameraPositionChanged: (LatLngBounds) -> Unit)
         }
         LaunchedEffect(cameraPositionState.isMoving) { // Trigger when cameraPositionState changes
             Log.d("map", "called launchedEffect")
-            if (cameraPositionState.isMoving) {
+            if (!cameraPositionState.isMoving) {
                 snapshotFlow { cameraPositionState.projection?.visibleRegion }
                     .distinctUntilChanged() // Only collect distinct changes
                     .collect { visibleRegion ->
