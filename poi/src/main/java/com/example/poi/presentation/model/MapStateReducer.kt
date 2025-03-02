@@ -3,6 +3,8 @@ package com.example.poi.presentation.model
 import com.example.poi.domain.model.Poi
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import kotlin.math.max
+import kotlin.math.min
 
 class MapStateReducer {
     fun reduceLoading(oldState: MapState, isLoading: Boolean, box: LatLngBounds) =
@@ -22,6 +24,15 @@ class MapStateReducer {
             }
         )
 
-    //TODO: Implement logic to keep or delete marker from the map
-    private fun LatLng.isInBox(latLngBounds: LatLngBounds?) = true
+    private fun LatLng.isInBox(latLngBounds: LatLngBounds?): Boolean = latLngBounds?.let {
+        val deadZoneCoeff = 1.3
+
+        val minLat = min(it.southwest.latitude, it.northeast.latitude) / deadZoneCoeff
+        val minLng = min(it.southwest.longitude, it.northeast.longitude) / deadZoneCoeff
+
+        val maxLat = max(it.southwest.latitude, it.northeast.latitude) * deadZoneCoeff
+        val maxLng = max(it.southwest.longitude, it.northeast.longitude) * deadZoneCoeff
+
+        return (latitude in minLat..maxLat) && (longitude in minLng..maxLng)
+    } ?: true
 }

@@ -66,7 +66,10 @@ fun PoiMap(
 //            }
 
             Clustering(
-                items = poiList
+                items = poiList,
+                clusterItemContent = {
+                    SingeMarker(it.markerImage)
+                }
             )
         }
 
