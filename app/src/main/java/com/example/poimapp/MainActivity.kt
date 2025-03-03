@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 
                     val poiDetailsState by poiDetailsViewModel.stateFlow.collectAsStateWithLifecycle()
                     val sheetState = rememberModalBottomSheetState(
-                        skipPartiallyExpanded = false,
+                        skipPartiallyExpanded = true
                     )
                     var showBottomSheet by remember { mutableStateOf(false) }
 
