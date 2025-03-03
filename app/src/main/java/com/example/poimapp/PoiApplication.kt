@@ -1,6 +1,7 @@
 package com.example.poimapp
 
 import android.app.Application
+import com.example.poimapp.di.appModule
 import com.example.poimapp.di.featureModules
 import com.example.poimapp.di.networkClientModule
 import org.koin.android.ext.koin.androidContext
@@ -21,6 +22,7 @@ class PoiApplication : Application() {
             modules(
                 listOf(
                     *featureModules,
+                    appModule,
                     networkClientModule
                 )
             )

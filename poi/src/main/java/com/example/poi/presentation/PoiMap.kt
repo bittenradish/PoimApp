@@ -30,6 +30,7 @@ fun PoiMap(
     modifier: Modifier,
     poiList: List<PoiMarker>,
     isLoading: Boolean,
+    onItemClicked: (String) -> Unit,
     cameraPositionChanged: (LatLngBounds) -> Unit
 ) {
     val germany = LatLng(50.775555, 6.083611)
@@ -67,9 +68,14 @@ fun PoiMap(
 
             Clustering(
                 items = poiList,
+                onClusterItemClick = {
+                    onItemClicked(it.id)
+                    false
+                },
                 clusterItemContent = {
                     SingeMarker(it.markerImage)
-                }
+                },
+
             )
         }
 
