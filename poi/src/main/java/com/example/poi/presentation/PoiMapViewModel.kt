@@ -1,6 +1,5 @@
 package com.example.poi.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.poi.domain.PoiRepository
@@ -24,7 +23,7 @@ class PoiMapViewModel(
     private val reducer: MapStateReducer,
 ) : ViewModel() {
 
-    //TODO: make it private and prepare to delegate
+    //TODO: Prepare to delegate
     private val mutableMapStateFlow = MutableStateFlow(MapState())
 
     private var job: Job? = null
@@ -55,7 +54,6 @@ class PoiMapViewModel(
     }
 
     private fun loadMapPoints(box: LatLngBounds) {
-        Log.d("map", "loadingViewmodel")
         mapState = reducer.reduceLoading(mapState, isLoading = true, box)
         job?.cancel()
 
@@ -84,7 +82,7 @@ class PoiMapViewModel(
                         }
                     },
                     onFailure = {
-                        reducer.reduceLoading(mapState, isLoading = false, box = box)
+                        mapState = reducer.reduceLoading(mapState, isLoading = false, box = box)
                     }
                 )
             }

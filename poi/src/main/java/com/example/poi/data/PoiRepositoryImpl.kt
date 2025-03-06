@@ -18,7 +18,7 @@ internal class PoiRepositoryImpl(
     //    "error": "Failed casting id for type integer. Please check given value.",
 //    "error_type": "typecast_failed"
 //}
-    override suspend fun getPoiList(boundingBox: BoundingBox): Flow<Result<PoisChunk>> =
+    override fun getPoiList(boundingBox: BoundingBox): Flow<Result<PoisChunk>> =
         poiApiAdapter.getPoiList(box = boundingBox.toData(), pageSize = 10).map { responseResult ->
             responseResult.map {
                 if (it.data.isEmpty()) {
@@ -29,6 +29,6 @@ internal class PoiRepositoryImpl(
             }
         }
 
-    override suspend fun getPoiDetails(id: String): Result<PoiDetails?> =
-        poiApiAdapter.getPoiDetails(id).map { it.data.firstOrNull()?.toDomain() }
+    override suspend fun getPoiDetails(idList: List<String>): Result<List<PoiDetails>> =
+        poiApiAdapter.getPoiDetails(idList).map { it.data.map { it.toDomain() } }
 }

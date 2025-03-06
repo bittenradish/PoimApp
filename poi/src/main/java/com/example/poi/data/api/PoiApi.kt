@@ -18,7 +18,7 @@ internal interface PoiApi {
 
     @GET("api/graph/discovery/pois")
     suspend fun getPoiDetails(
-        @Query("filter[id]") id: String,
+        @Query("filter[id]") idList: String,
         @Query("extra_fields[pois]") extraFields: String,
     ): PoiDataResponse<PoiDetailsResponse>
 }

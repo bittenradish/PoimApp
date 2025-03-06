@@ -5,7 +5,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    viewModel {
-        PoiDetailsViewModel(repository = get())
+    viewModel { (idList: List<String>) ->
+        PoiDetailsViewModel(idList = idList, repository = get())
     }
 }

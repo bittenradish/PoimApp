@@ -35,8 +35,8 @@ internal class PoiApiAdapter(private val poiApi: PoiApi) {
         } while (result.getOrNull()?.data?.isNotEmpty() == true)
     }
 
-    suspend fun getPoiDetails(id: String) = runCatching {
-        poiApi.getPoiDetails(id, extraFields)
+    suspend fun getPoiDetails(idList: List<String>) = runCatching {
+        poiApi.getPoiDetails(idList.joinToString(","), extraFields)
     }
 
 }
