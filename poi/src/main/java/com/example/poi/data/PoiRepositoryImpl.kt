@@ -30,5 +30,9 @@ internal class PoiRepositoryImpl(
         }
 
     override suspend fun getPoiDetails(idList: List<String>): Result<List<PoiDetails>> =
-        poiApiAdapter.getPoiDetails(idList).map { it.data.map { it.toDomain() } }
+        poiApiAdapter.getPoiDetails(idList).map { response ->
+            response.data.map {
+                it.toDomain()
+            }
+        }
 }

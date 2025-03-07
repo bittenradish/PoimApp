@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.serialization.converter)
     implementation(libs.koin)
+    implementation(libs.koin.compose)
     implementation(libs.okhttp)
     implementation(libs.google.maps.compose)
     implementation(libs.google.maps.compose.utils)

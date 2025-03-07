@@ -11,42 +11,46 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.poi.presentation.model.PoiMarker
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun PoiMap(
     modifier: Modifier,
-    poiList: List<PoiMarker>,
-    isLoading: Boolean,
-    onItemClicked: (String) -> Unit,
-    cameraPositionChanged: (LatLngBounds) -> Unit
+    vm: PoiMapViewModel = koinViewModel<PoiMapViewModel>(),
+    onItemsClicked: (List<PoiMarker>) -> Unit
 ) {
-    val germany = LatLng(50.775555, 6.083611)
+    val poiList by vm.mapStateFlow.collectAsStateWithLifecycle()
+    val isLoading by vm.isLoadingFlow.collectAsStateWithLifecycle()
+
+
+    val aachen = LatLng(50.775555, 6.083611)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(germany, 15f)
+        position = CameraPosition.fromLatLngZoom(aachen, 15f)
     }
 
-    LaunchedEffect(cameraPositionState.isMoving) { // Trigger when cameraPositionState changes
+    LaunchedEffect(cameraPositionState.isMoving) {
         Log.d("map", "called launchedEffect")
         if (!cameraPositionState.isMoving) {
             snapshotFlow { cameraPositionState.projection?.visibleRegion }
-                .distinctUntilChanged() // Only collect distinct changes
+                .distinctUntilChanged()
                 .collect { visibleRegion ->
                     visibleRegion?.let {
-
-                        cameraPositionChanged(it.latLngBounds)
+                        vm.updateBoundingBox(it.latLngBounds)
                     }
                 }
         }
@@ -60,22 +64,23 @@ fun PoiMap(
                 Log.d("Map", "Loaded")
             }
         ) {
-//            poiList.forEach {
-//                Marker(
-//                    state = rememberUpdatedMarkerState(it)
-//                )
-//            }
-
             Clustering(
                 items = poiList,
+                onClusterClick = {
+                    if (cameraPositionState.position.zoom <= 17) {
+                        cameraPositionState.move(update = CameraUpdateFactory.zoomIn())
+                    } else {
+                        onItemsClicked(it.items.toList())
+                    }
+                    false
+                },
                 onClusterItemClick = {
-                    onItemClicked(it.id)
+                    onItemsClicked(listOf(it))
                     false
                 },
                 clusterItemContent = {
                     SingeMarker(it.markerImage)
                 },
-
             )
         }
 
