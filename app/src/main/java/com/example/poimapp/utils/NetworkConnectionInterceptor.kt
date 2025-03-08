@@ -3,7 +3,7 @@ package com.example.poimapp.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import com.example.core.NoConnectivityException
+import com.example.core.NetworkExceptions
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -11,7 +11,7 @@ class NetworkConnectionInterceptor(private val context: Context) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         if (!isInternetAvailable(context)) {
-            throw NoConnectivityException()
+            throw NetworkExceptions.NoConnectivityException()
         }
         return chain.proceed(chain.request())
     }

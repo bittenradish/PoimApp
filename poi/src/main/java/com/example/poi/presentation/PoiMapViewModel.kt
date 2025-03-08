@@ -2,19 +2,24 @@ package com.example.poi.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.core.NetworkExceptions
 import com.example.poi.domain.PoiRepository
 import com.example.poi.domain.model.BoundingBox
 import com.example.poi.domain.model.PoisChunk
 import com.example.poi.presentation.model.MapState
 import com.example.poi.presentation.model.MapStateReducer
 import com.example.poi.presentation.model.PoiMarker
+import com.example.resources.snackbar.SnackbarType
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -26,6 +31,8 @@ class PoiMapViewModel(
     //TODO: Prepare to delegate
     private val mutableMapStateFlow = MutableStateFlow(MapState())
 
+    private val uiEffectChannel: Channel<SnackbarType> = Channel(Channel.CONFLATED)
+
     private var job: Job? = null
 
     private var mapState: MapState
@@ -33,6 +40,8 @@ class PoiMapViewModel(
         set(value) {
             mutableMapStateFlow.value = value
         }
+
+    val uiEffectFlow: Flow<SnackbarType> = uiEffectChannel.receiveAsFlow()
 
     val mapStateFlow: StateFlow<List<PoiMarker>> =
         mutableMapStateFlow.map { it.poiList.values.toList() }.distinctUntilChanged().stateIn(
@@ -83,6 +92,14 @@ class PoiMapViewModel(
                     },
                     onFailure = {
                         mapState = reducer.reduceLoading(mapState, isLoading = false, box = box)
+                        uiEffectChannel.trySend(
+                            when(it){
+                                is NetworkExceptions.NoConnectivityException -> SnackbarType.NO_INTERNET_ERROR
+                                is NetworkExceptions.ServerErrorException -> SnackbarType.SERVER_ERROR
+                                is NetworkExceptions.ClientErrorException -> SnackbarType.CLIENT_ERROR
+                                else -> SnackbarType.UNKNOWN_ERROR
+                            }
+                        )
                     }
                 )
             }

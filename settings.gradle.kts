@@ -24,3 +24,4 @@ rootProject.name = "PoimApp"
 include(":app")
 include(":poi")
 include(":core")
+include(":resources")

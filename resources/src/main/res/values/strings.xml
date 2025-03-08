@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_internet_msg">No internet connection</string>
+    <string name="internal_server_error_msg">Server is sleeping. Try again later.</string>
+    <string name="client_error_msg">Pokemon is lost. Update or try again later.</string>
+    <string name="unknown_error_msg">Pokemon is confused. Try again later.</string>
+</resources>
