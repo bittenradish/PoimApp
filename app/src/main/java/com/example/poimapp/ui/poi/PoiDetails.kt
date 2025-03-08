@@ -1,6 +1,10 @@
 package com.example.poimapp.ui.poi
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,22 +12,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,6 +57,7 @@ fun PoiDetails(
     BackHandler(enabled = !state.backNavigationEnabled) {
         vm.cleanSelected()
     }
+    val screenOrientation = LocalConfiguration.current.orientation
 
     Box(
         modifier = modifier
@@ -55,31 +66,95 @@ fun PoiDetails(
             //TODO: Implement loading state
             PoiDetailsState.Loading -> Text(text = "Loading")
             is PoiDetailsState.Ready.Multiple ->
-                if (currentState.selected == null) {
-                    PoiItemList(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp),
-                        currentState.listOfItems,
-                        onItemClick = {
-                            vm.itemSelected(it)
-                        }
+                if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    PortraitModeItemList(
+                        currentState,
+                        onItemClick = { vm.itemSelected(it) }
                     )
                 } else {
-                    PoiItemDetails(
-                        Modifier.fillMaxSize(),
-                        currentState.selected
+                    LandscapeModeItemList(
+                        currentState,
+                        onItemClick = { vm.itemSelected(it) }
                     )
                 }
 
             is PoiDetailsState.Ready.Single -> PoiItemDetails(
-                Modifier.fillMaxSize(),
-                currentState.item
+                modifier = Modifier
+                    .fillMaxSize()
+                    .displayCutoutPadding(),
+                item = currentState.item,
+                orientation = screenOrientation,
             )
 
             //TODO: Implement Error state
             is PoiDetailsState.Error -> Text(currentState.message)
         }
+    }
+}
+
+@Composable
+private fun LandscapeModeItemList(
+    currentState: PoiDetailsState.Ready.Multiple,
+    onItemClick: (PoiDetailsItem) -> Unit
+) {
+    val halfOfTheScreen = (LocalConfiguration.current.screenWidthDp / 2).dp
+    Row(
+        modifier = Modifier.displayCutoutPadding()
+    ) {
+        PoiItemList(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .sizeIn(
+                    maxWidth = halfOfTheScreen,
+                    minWidth = halfOfTheScreen
+                )
+                .padding(horizontal = 8.dp),
+            currentState.listOfItems,
+            onItemClick = onItemClick
+        )
+        AnimatedVisibility(
+            currentState.selected != null,
+            enter = expandHorizontally(),
+            exit = shrinkHorizontally()
+        ) {
+            VerticalDivider(thickness = 1.dp)
+            currentState.selected?.let {
+                PoiItemDetails(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .sizeIn(
+                            minWidth = halfOfTheScreen,
+                            maxWidth = halfOfTheScreen,
+                        ),
+                    item = it,
+                    orientation = Configuration.ORIENTATION_LANDSCAPE
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PortraitModeItemList(
+    currentState: PoiDetailsState.Ready.Multiple,
+    onItemClick: (PoiDetailsItem) -> Unit,
+) {
+    if (currentState.selected == null) {
+        PoiItemList(
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            currentState.listOfItems,
+            onItemClick = onItemClick
+        )
+    } else {
+        PoiItemDetails(
+            modifier = Modifier.fillMaxSize(),
+            item = currentState.selected,
+            orientation = Configuration.ORIENTATION_PORTRAIT,
+        )
     }
 }
 
@@ -173,63 +248,100 @@ private fun PoiItem(
 fun PoiItemDetails(
     modifier: Modifier,
     item: PoiDetailsItem,
+    orientation: Int,
 ) {
     Column(
         modifier = modifier
     ) {
-
-        AsyncImage(
-            modifier = Modifier
-                .fillMaxWidth(),
-            model = item.image,
-            contentScale = ContentScale.FillWidth,
-            placeholder = painterResource(R.drawable.ic_image_placeholder_24),
-            contentDescription = null
+        PoiItemDetailsImage(
+            modifier = Modifier.let {
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    it.padding(8.dp)
+                } else {
+                    it
+                }
+            },
+            item = item,
+            orientation = orientation
         )
+        PoiItemDetailsDescription(modifier = Modifier.weight(1f), item = item)
+    }
+}
 
-        Column(
-            modifier = Modifier
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+@Composable
+private fun PoiItemDetailsImage(
+    modifier: Modifier,
+    item: PoiDetailsItem,
+    orientation: Int
+) {
+    AsyncImage(
+        modifier = modifier
+            .let {
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    it.height((LocalConfiguration.current.screenHeightDp / 2).dp)
+                } else {
+                    it.fillMaxWidth()
+                }
+            },
+        model = item.image,
+        contentScale = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ContentScale.Crop
+        } else {
+            ContentScale.FillWidth
+        },
+        placeholder = painterResource(R.drawable.ic_image_placeholder_24),
+        contentDescription = null
+    )
+}
+
+@Composable
+private fun PoiItemDetailsDescription(
+    modifier: Modifier,
+    item: PoiDetailsItem,
+) {
+    Column(
+        modifier = modifier
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = item.name,
-                    maxLines = 1,
-                    style = MaterialTheme.typography.headlineMedium,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Icon(
-                    modifier = Modifier.size(44.dp),
-                    painter = painterResource(item.typeIcon),
-                    tint = MaterialTheme.colorScheme.primary,
-                    contentDescription = "",
-                )
-            }
+            Text(
+                modifier = Modifier.weight(1f),
+                text = item.name,
+                maxLines = 1,
+                style = MaterialTheme.typography.headlineMedium,
+                overflow = TextOverflow.Ellipsis
+            )
+            Icon(
+                modifier = Modifier.size(44.dp),
+                painter = painterResource(item.typeIcon),
+                tint = MaterialTheme.colorScheme.primary,
+                contentDescription = "",
+            )
+        }
 
 
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
-            ) {
-                Text(
-                    text = "Provider:",
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = item.provideName,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
+        ) {
+            Text(
+                text = "Provider:",
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = item.provideName,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
