@@ -31,6 +31,7 @@ import com.example.resources.snackbar.SnackbarType
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -82,6 +83,7 @@ fun PoiMap(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
+            mapColorScheme = ComposeMapColorScheme.FOLLOW_SYSTEM,
             onMapLoaded = {
                 Log.d("Map", "Loaded")
             }

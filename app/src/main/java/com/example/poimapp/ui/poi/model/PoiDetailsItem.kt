@@ -23,8 +23,18 @@ sealed class PoiDetailsState {
         override val backNavigationEnabled: Boolean = true
     }
 
-    data class Error(val message: String) : PoiDetailsState() {
+    sealed class ErrorState : PoiDetailsState() {
         override val backNavigationEnabled: Boolean = true
+
+        data object Client : ErrorState()
+
+        data object Server : ErrorState()
+
+        data object NoConnection : ErrorState()
+
+        data object Unknown : ErrorState()
+
+        data class MarkerNotFound(val message: String) : ErrorState()
     }
 }
 

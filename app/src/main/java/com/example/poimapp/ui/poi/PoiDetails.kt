@@ -17,12 +17,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +45,10 @@ import coil3.compose.AsyncImage
 import com.example.poimapp.R
 import com.example.poimapp.ui.poi.model.PoiDetailsItem
 import com.example.poimapp.ui.poi.model.PoiDetailsState
+import com.example.resources.card.ClientErrorCard
+import com.example.resources.card.NoInternetCard
+import com.example.resources.card.ServerErrorCard
+import com.example.resources.card.UnknownErrorCard
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -63,8 +70,17 @@ fun PoiDetails(
         modifier = modifier
     ) {
         when (val currentState = state) {
-            //TODO: Implement loading state
-            PoiDetailsState.Loading -> Text(text = "Loading")
+            PoiDetailsState.Loading ->
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(55.dp)
+                        .align(Alignment.Center)
+                        .displayCutoutPadding()
+                        .navigationBarsPadding()
+                        .statusBarsPadding(),
+                    strokeWidth = 6.dp
+                )
+
             is PoiDetailsState.Ready.Multiple ->
                 if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     PortraitModeItemList(
@@ -86,9 +102,31 @@ fun PoiDetails(
                 orientation = screenOrientation,
             )
 
-            //TODO: Implement Error state
-            is PoiDetailsState.Error -> Text(currentState.message)
+            is PoiDetailsState.ErrorState -> ErrorStateComposable(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(25.dp),
+                errorState = currentState
+            )
         }
+    }
+}
+
+@Composable
+private fun ErrorStateComposable(
+    modifier: Modifier,
+    errorState: PoiDetailsState.ErrorState
+) {
+    when (errorState) {
+        PoiDetailsState.ErrorState.Client -> ClientErrorCard(modifier)
+        is PoiDetailsState.ErrorState.MarkerNotFound -> UnknownErrorCard(
+            modifier,
+            errorState.message
+        )
+
+        PoiDetailsState.ErrorState.NoConnection -> NoInternetCard(modifier)
+        PoiDetailsState.ErrorState.Server -> ServerErrorCard(modifier)
+        PoiDetailsState.ErrorState.Unknown -> UnknownErrorCard(modifier)
     }
 }
 
@@ -285,7 +323,7 @@ private fun PoiItemDetailsImage(
             },
         model = item.image,
         contentScale = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ContentScale.Crop
+            ContentScale.FillHeight
         } else {
             ContentScale.FillWidth
         },

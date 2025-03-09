@@ -3,6 +3,7 @@ package com.example.poimapp.ui.poi
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.core.NetworkExceptions
 import com.example.poi.domain.PoiRepository
 import com.example.poi.domain.model.PoiDetails
 import com.example.poi.presentation.model.toIcon
@@ -57,7 +58,7 @@ class PoiDetailsViewModel(
                             PoiDetailsState.Ready.Single(it.toItem())
                         }
 
-                        0 -> PoiDetailsState.Error("Marker not found")
+                        0 -> PoiDetailsState.ErrorState.MarkerNotFound("Vehicle not found")
                         else -> PoiDetailsState.Ready.Multiple(
                             list.map { it.toItem() },
                             null
@@ -66,7 +67,12 @@ class PoiDetailsViewModel(
                     }
                 },
                 onFailure = {
-                    state = PoiDetailsState.Error("Unknown error")
+                    state = when (it) {
+                        is NetworkExceptions.NoConnectivityException -> PoiDetailsState.ErrorState.NoConnection
+                        is NetworkExceptions.ClientErrorException -> PoiDetailsState.ErrorState.Client
+                        is NetworkExceptions.ServerErrorException -> PoiDetailsState.ErrorState.Server
+                        else -> PoiDetailsState.ErrorState.Unknown
+                    }
                 }
             )
         }
