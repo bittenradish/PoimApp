@@ -67,7 +67,9 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.graphics.shapes)
 
-    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(kotlin("test"))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
