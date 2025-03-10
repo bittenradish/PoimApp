@@ -94,7 +94,7 @@ class PoiMapViewModelIntegrationTest {
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.isLoadingFlow.collect {
-                    println("Colledted: $it")
+                    println("Collected: $it")
                 }
 
                 viewModel.mapStateFlow.collect {}
@@ -160,7 +160,7 @@ class PoiMapViewModelIntegrationTest {
 
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.isLoadingFlow.collect {
-                println("Colledted: $it")
+                println("Collected: $it")
             }
 
             viewModel.mapStateFlow.collect {}
