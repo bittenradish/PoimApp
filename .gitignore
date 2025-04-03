@@ -12,5 +12,8 @@
 /captures
 .externalNativeBuild
 .cxx
+.kotlin/*
 local.properties
+local.defaults.properties
+app/release/*
 secrets.properties
