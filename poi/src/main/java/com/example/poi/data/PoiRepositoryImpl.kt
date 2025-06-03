@@ -13,11 +13,7 @@ import kotlinx.coroutines.flow.map
 internal class PoiRepositoryImpl(
     private val poiApiAdapter: PoiApiAdapter,
 ) : PoiRepository {
-    //TODO:
-//{
-    //    "error": "Failed casting id for type integer. Please check given value.",
-//    "error_type": "typecast_failed"
-//}
+
     override fun getPoiList(boundingBox: BoundingBox): Flow<Result<PoisChunk>> =
         poiApiAdapter.getPoiList(box = boundingBox.toData(), pageSize = 10).map { responseResult ->
             responseResult.map {

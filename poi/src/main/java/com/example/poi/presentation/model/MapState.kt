@@ -7,7 +7,7 @@ import com.google.maps.android.clustering.ClusterItem
 
 data class MapState(
     val isLoading: Boolean = false,
-    val poiList: Map<String, PoiMarker> = mapOf(),
+    val poiMap: Map<String, PoiMarker> = mapOf(),
     val cameraBoundingBox: LatLngBounds? = null
 )
 

@@ -23,7 +23,7 @@ class MapStateReducerTest {
 
         assertEquals(true, newState.isLoading, "isLoading should be true")
         assertEquals(newBox, newState.cameraBoundingBox, "cameraBoundingBox should be updated")
-        assertEquals(oldState.poiList, newState.poiList, "poiList should remain unchanged")
+        assertEquals(oldState.poiMap, newState.poiMap, "poiList should remain unchanged")
     }
 
     @Test
@@ -64,12 +64,12 @@ class MapStateReducerTest {
 
         val newState = reducer.reducePoiList(oldState, poiList)
 
-        assertEquals(1, newState.poiList.size, "Only one POI should be in the list")
-        assertTrue(newState.poiList.containsKey("1"), "POI 1 should be present")
-        assertFalse(newState.poiList.containsKey("2"), "POI 2 should be filtered out")
+        assertEquals(1, newState.poiMap.size, "Only one POI should be in the list")
+        assertTrue(newState.poiMap.containsKey("1"), "POI 1 should be present")
+        assertFalse(newState.poiMap.containsKey("2"), "POI 2 should be filtered out")
         assertEquals(
             LatLng(1.5, 1.5),
-            newState.poiList["1"]?.latLng,
+            newState.poiMap["1"]?.latLng,
             "POI 1 should have correct coordinates"
         )
     }
@@ -104,16 +104,16 @@ class MapStateReducerTest {
 
         val newState = reducer.reducePoiList(oldState, poiList)
 
-        assertEquals(2, newState.poiList.size)
-        assertTrue(newState.poiList.containsKey("1"))
-        assertTrue(newState.poiList.containsKey("2"))
+        assertEquals(2, newState.poiMap.size)
+        assertTrue(newState.poiMap.containsKey("1"))
+        assertTrue(newState.poiMap.containsKey("2"))
     }
 
     @Test
     fun `reducePoiList adds to the current List`() {
         val oldState = MapState(
             cameraBoundingBox = LatLngBounds(LatLng(1.0, 1.0), LatLng(4.0, 4.0)),
-            poiList = mapOf(
+            poiMap = mapOf(
                 "1" to PoiMarker("1", LatLng(1.5, 1.5), 1)
             )
         )
@@ -132,17 +132,17 @@ class MapStateReducerTest {
         )
 
         val newState = reducer.reducePoiList(oldState, poiList)
-        assertEquals(2, newState.poiList.size)
-        assertTrue(newState.poiList.containsKey("1"))
-        assertTrue(newState.poiList.containsKey("2"))
-        assertEquals(LatLng(3.0, 3.0), newState.poiList["2"]?.latLng)
+        assertEquals(2, newState.poiMap.size)
+        assertTrue(newState.poiMap.containsKey("1"))
+        assertTrue(newState.poiMap.containsKey("2"))
+        assertEquals(LatLng(3.0, 3.0), newState.poiMap["2"]?.latLng)
     }
 
     @Test
     fun `reducePoiList adds to the current List and updated existing POI`() {
         val oldState = MapState(
             cameraBoundingBox = LatLngBounds(LatLng(1.0, 1.0), LatLng(4.0, 4.0)),
-            poiList = mapOf(
+            poiMap = mapOf(
                 "1" to PoiMarker("1", LatLng(1.5, 1.5), 1)
             )
         )
@@ -171,20 +171,20 @@ class MapStateReducerTest {
         )
 
         val newState = reducer.reducePoiList(oldState, poiList)
-        assertEquals(2, newState.poiList.size)
-        assertTrue(newState.poiList.containsKey("1"))
-        assertTrue(newState.poiList.containsKey("2"))
-        assertEquals(LatLng(3.0, 3.0), newState.poiList["2"]?.latLng)
-        assertEquals(LatLng(1.2, 1.2), newState.poiList["1"]?.latLng)
+        assertEquals(2, newState.poiMap.size)
+        assertTrue(newState.poiMap.containsKey("1"))
+        assertTrue(newState.poiMap.containsKey("2"))
+        assertEquals(LatLng(3.0, 3.0), newState.poiMap["2"]?.latLng)
+        assertEquals(LatLng(1.2, 1.2), newState.poiMap["1"]?.latLng)
     }
 
     @Test
     fun `reducePoiList with empty POI list returns same POI list`() {
         val oldState = MapState(
-            poiList = mapOf("1" to PoiMarker("1", LatLng(1.0, 1.0), 1))
+            poiMap = mapOf("1" to PoiMarker("1", LatLng(1.0, 1.0), 1))
         )
         val newState = reducer.reducePoiList(oldState, emptyList())
-        assertEquals(oldState.poiList, newState.poiList)
+        assertEquals(oldState.poiMap, newState.poiMap)
     }
 
 

@@ -13,8 +13,8 @@ class MapStateReducer {
 
     fun reducePoiList(oldState: MapState, poiList: List<Poi>): MapState =
         oldState.copy(
-            poiList = oldState.poiList.toMutableMap().apply {
-                this.putAll(
+            poiMap = oldState.poiMap.toMutableMap().apply {
+                putAll(
                     poiList.associate {
                         it.id to it.toMarker()
                     }

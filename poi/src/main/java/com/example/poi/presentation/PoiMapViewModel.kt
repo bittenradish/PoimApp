@@ -44,7 +44,7 @@ class PoiMapViewModel(
     val uiEffectFlow: Flow<SnackbarType> = uiEffectChannel.receiveAsFlow()
 
     val mapStateFlow: StateFlow<List<PoiMarker>> =
-        mutableMapStateFlow.map { it.poiList.values.toList() }.distinctUntilChanged().stateIn(
+        mutableMapStateFlow.map { it.poiMap.values.toList() }.distinctUntilChanged().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = listOf()
