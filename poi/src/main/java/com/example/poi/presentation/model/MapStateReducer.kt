@@ -7,10 +7,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 class MapStateReducer {
-    fun reduceLoading(oldState: MapState, isLoading: Boolean, box: LatLngBounds) =
-        oldState.copy(isLoading = isLoading, cameraBoundingBox = box)
-
-
     fun reducePoiList(oldState: MapState, poiList: List<Poi>): MapState =
         oldState.copy(
             poiMap = oldState.poiMap.toMutableMap().apply {
